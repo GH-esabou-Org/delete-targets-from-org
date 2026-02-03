@@ -27,6 +27,11 @@ def snyk_cleanup():
 
     api_version = "2024-10-15"
     
+    # Check for Dry Run flag
+    dry_run = "--dry-run" in sys.argv
+    if dry_run:
+        print("🛠 DRY RUN MODE ENABLED: No targets will be deleted.")
+
     # 2. Select Organization
     orgs = get_organizations(api_token, api_version)
     if not orgs:
@@ -82,6 +87,13 @@ def snyk_cleanup():
 
     # 4. Confirmation and Deletion
     print("\n" + "!" * 40)
+    if dry_run:
+        print(f"DRY RUN: Would have deleted {len(target_list)} targets in {selected_org['name']}.")
+        for target in target_list:
+            print(f"  [WOULD DELETE] {target['name']}")
+        print("\nDry run complete. No changes were made.")
+        return
+
     print(f"DANGER: You are about to DELETE ALL {len(target_list)} targets")
     print(f"in organization: {selected_org['name']}")
     confirm = input("Are you sure? (type 'yes' to proceed): ")
